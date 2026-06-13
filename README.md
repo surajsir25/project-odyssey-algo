@@ -1,6 +1,6 @@
 # Odyssey Algo — Upstox Market Data Streamer
 
-Production-oriented Python package that streams real-time market data from Upstox, extracts 1-minute and 5-minute OHLC candles, and persists them to CSV.
+Production-oriented Python package that streams real-time market data from Upstox, extracts 1-minute and 5-minute OHLC candles, and persists them to CSV format.
 
 ## Project structure
 
