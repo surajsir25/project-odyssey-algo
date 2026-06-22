@@ -1,0 +1,30 @@
+stateDiagram-v2
+    [*] --> Initialized
+    Initialized --> Connected: connect()
+    Connected --> Streaming: _on_open()
+    
+    Streaming --> Streaming: _on_message()
+    Streaming --> Streaming: subscribe_instruments()
+    Streaming --> Streaming: unsubscribe_instruments()
+    
+    Streaming --> Error: _on_error()
+    Error --> Reconnecting: auto_reconnect enabled
+    Reconnecting --> Connected: reconnect_interval elapsed
+    
+    Streaming --> Closed: _on_close()
+    Connected --> Closed: disconnect()
+    Reconnecting --> Closed: max_retries exceeded
+    
+    Closed --> [*]
+    
+    note right of Streaming
+        Active message processing
+        Can change subscriptions
+        Auto-logging enabled
+    end note
+    
+    note right of Reconnecting
+        Waiting to retry
+        interval: reconnect_interval
+        max attempts: max_retries
+    end note

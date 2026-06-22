@@ -1,5 +1,5 @@
 #!/bin/bash
-# Setup script for Odyssey Algo (Upstox market data streamer)
+# Setup script for Odyssey Algo
 # Run: bash setup.sh
 
 set -euo pipefail
@@ -9,9 +9,14 @@ echo "Odyssey Algo — Setup"
 echo "================================"
 echo ""
 
+PYTHON=${PYTHON:-python3.12}
+if ! command -v "$PYTHON" &>/dev/null; then
+    PYTHON=python3
+fi
+
 if [ ! -d "venv" ]; then
-    echo "[1/5] Creating virtual environment..."
-    python3 -m venv venv
+    echo "[1/5] Creating virtual environment ($PYTHON)..."
+    "$PYTHON" -m venv venv
     echo "Virtual environment created"
 else
     echo "[1/5] Virtual environment already exists"
@@ -46,7 +51,7 @@ echo "================================"
 echo ""
 echo "Next steps:"
 echo "1. Edit .env and set UPSTOX_ACCESS_TOKEN"
-echo "2. Customize instruments in src/odyssey_algo/instruments.py"
-echo "3. Run: odyssey-stream"
-echo "   or:  python -m odyssey_algo.cli"
+echo "2. Run paper trading:     odyssey-trade"
+echo "3. Run NIFTY candles:     odyssey-nifty-stream"
+echo "4. Run legacy streamer:    odyssey-stream"
 echo ""

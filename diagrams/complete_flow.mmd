@@ -1,0 +1,80 @@
+flowchart TD
+    A["START: Initialize Handler"] --> B["Create UpstoxMarketDataHandler"]
+    B --> C["Setup API Configuration<br/>access_token"]
+    C --> D["Create ApiClient"]
+    D --> E["Initialize CsvCandleStore"]
+    
+    E --> F["Call initialize_streamer()"]
+    F --> G["Create MarketDataStreamerV3<br/>instrumentKeys & mode"]
+    G --> H["Setup Event Handlers<br/>on: open, message, close, error, reconnecting"]
+    
+    H --> I["Enable Auto-Reconnect<br/>interval, retry_count"]
+    I --> J["Call connect()"]
+    
+    J --> K{"WebSocket<br/>Connection"}
+    
+    K -->|Success| L["_on_open() triggered"]
+    L --> M["Log: Connection established"]
+    M --> N["Call _resubscribe_all()"]
+    N --> O["Subscribe to instruments<br/>in specified mode"]
+    O --> P["Ready to receive messages"]
+    
+    P --> Q["_on_message() triggered"]
+    Q --> R{"Parse JSON<br/>Message"}
+    
+    R -->|Decode Error| S["Log JSONDecodeError"]
+    S --> Q
+    
+    R -->|Success| T{"Check Message<br/>Type"}
+    T -->|market_info| U["Skip processing"]
+    U --> Q
+    
+    T -->|market_data| V["Extract feeds"]
+    V --> W{"Custom<br/>Callback?"}
+    
+    W -->|Yes| X["Call on_feed()<br/>Custom processing"]
+    X --> Q
+    
+    W -->|No| Y["Extract candles<br/>from feed data"]
+    Y --> Z["For each interval<br/>1min, 5min, etc"]
+    Z --> AA["Write candle to CSV"]
+    AA --> AB["Log OHLC data"]
+    AB --> Q
+    
+    K -->|Failure| AC["_on_error() triggered"]
+    AC --> AD["Log WebSocket error"]
+    AD --> AE{"Auto-Reconnect<br/>Enabled?"}
+    
+    AE -->|Yes| AF["_on_reconnecting() triggered"]
+    AF --> AG["Wait reconnect_interval seconds"]
+    AG --> AH["Retry connection"]
+    AH --> K
+    
+    AE -->|No| AI["Stop connection"]
+    
+    P --> AJ["_on_close() triggered"]
+    AJ --> AK["Log: Connection closed"]
+    AK --> AL{"Graceful<br/>Disconnect?"}
+    
+    AL -->|Yes| AM["END: Cleanup"]
+    AL -->|No| AN["Check error logs"]
+    AN --> AE
+    
+    P --> AO["subscribe_instruments()"]
+    AO --> AP["Add to subscriptions"]
+    AP --> AQ["Stream resumes with new instruments"]
+    AQ --> Q
+    
+    P --> AR["unsubscribe_instruments()"]
+    AR --> AS["Remove from subscriptions"]
+    AS --> AT["Stream continues with remaining instruments"]
+    AT --> Q
+    
+    style A fill:#90EE90
+    style AM fill:#FFB6C6
+    style K fill:#87CEEB
+    style R fill:#87CEEB
+    style T fill:#87CEEB
+    style W fill:#87CEEB
+    style AE fill:#87CEEB
+    style AL fill:#87CEEB

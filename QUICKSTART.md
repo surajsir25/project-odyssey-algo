@@ -6,6 +6,8 @@
 bash setup.sh
 ```
 
+Requires Python 3.12+.
+
 ## 2. Add your token
 
 Edit `.env`:
@@ -14,21 +16,25 @@ Edit `.env`:
 UPSTOX_ACCESS_TOKEN=your_actual_token_here
 ```
 
-## 3. Run
+## 3. Run paper trading (Phase 1)
 
 ```bash
 source venv/bin/activate
+odyssey-trade
+```
+
+Paper mode is the default — no real orders. Trade events are logged to `data/trade_journal.jsonl`.
+
+## 4. Run market data streamer (optional)
+
+```bash
 odyssey-stream
 ```
 
 Data is saved under `data/` as `*_1min.csv` and `*_5min.csv`.
 
-## Customize instruments
+## Going live
 
-Edit `src/odyssey_algo/instruments.py`.
+Set `ODYSSEY_TRADING_MODE=live` and register `ODYSSEY_ALGO_NAME` with Upstox before placing real orders.
 
-## Debug raw messages
-
-```bash
-python scripts/debug_streamer.py
-```
+See [PHASE1.md](PHASE1.md) for architecture details.

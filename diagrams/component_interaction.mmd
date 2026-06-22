@@ -1,0 +1,58 @@
+graph TB
+    subgraph Client["Client Layer"]
+        CLI["CLI/Application"]
+        Handler["UpstoxMarketDataHandler"]
+    end
+    
+    subgraph Config["Configuration"]
+        Settings["Settings<br/>access_token, mode<br/>reconnect_interval"]
+        ApiConfig["API Configuration"]
+    end
+    
+    subgraph Upstox["Upstox SDK"]
+        ApiClient["ApiClient"]
+        Streamer["MarketDataStreamerV3"]
+    end
+    
+    subgraph Events["Event Handlers"]
+        OnOpen["_on_open()"]
+        OnMsg["_on_message()"]
+        OnClose["_on_close()"]
+        OnErr["_on_error()"]
+        OnRecon["_on_reconnecting()"]
+    end
+    
+    subgraph Processing["Data Processing"]
+        Extract["extract_candles_from_feed()"]
+        Store["CsvCandleStore"]
+    end
+    
+    subgraph Output["Output"]
+        CSV["CSV Files<br/>1min, 5min"]
+        Logs["Log Files"]
+    end
+    
+    CLI -->|initialize_streamer| Handler
+    Handler -->|uses| Settings
+    Handler -->|creates| ApiClient
+    ApiClient -->|uses| ApiConfig
+    Handler -->|creates| Streamer
+    
+    Streamer -->|emits| OnOpen
+    Streamer -->|emits| OnMsg
+    Streamer -->|emits| OnClose
+    Streamer -->|emits| OnErr
+    Streamer -->|emits| OnRecon
+    
+    OnOpen -->|subscribes| Streamer
+    OnMsg -->|processes| Extract
+    Extract -->|writes| Store
+    Store -->|saves| CSV
+    
+    Handler -->|logs| Logs
+    Events -->|logs| Logs
+    
+    style Handler fill:#90EE90
+    style Streamer fill:#87CEEB
+    style Extract fill:#FFD700
+    style CSV fill:#FFB6C6

@@ -45,7 +45,7 @@ def _extract_from_ff(
     instrument_key: str,
 ) -> dict[str, dict]:
     candles_by_interval: dict[str, dict] = {}
-    full_feed = feed_data.get("fullFeed", {})
+    full_feed = feed_data.get("fullFeed") or feed_data.get("ff") or {}
     ff_section = full_feed.get(full_feed_key, {})
     if not ff_section:
         return candles_by_interval
@@ -62,8 +62,8 @@ def _extract_from_ff(
 
 
 def extract_candles_from_feed(instrument_key: str, feed_data: dict[str, Any]) -> dict[str, dict]:
-    """Extract 1-min and 5-min candles from index or equity full feeds."""
+    """Extract 1-min and 5-min candles from index, equity, or option full feeds."""
     candles: dict[str, dict] = {}
-    for ff_key in ("indexFF", "equityFF"):
+    for ff_key in ("indexFF", "equityFF", "marketFF"):
         candles.update(_extract_from_ff(ff_key, feed_data, instrument_key))
     return candles

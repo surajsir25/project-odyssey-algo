@@ -1,0 +1,22 @@
+flowchart LR
+    A["Raw WebSocket<br/>Message"] --> B{"Message<br/>Format"}
+    B -->|String| C["JSON Parse"]
+    B -->|Dict| D["Use as-is"]
+    C --> E["Extract Data"]
+    D --> E
+    E --> F["Get feeds dict"]
+    F --> G["For each instrument_key"]
+    G --> H{"Custom<br/>Handler?"}
+    H -->|Yes| I["on_feed callback"]
+    I --> J["Custom Processing"]
+    H -->|No| K["extract_candles_from_feed"]
+    K --> L["Generate candles<br/>1min, 5min"]
+    L --> M["Write to CSV"]
+    M --> N["Log OHLC<br/>Open/High/Low/Close<br/>Volume"]
+    J --> O["Ready for next message"]
+    N --> O
+    
+    style A fill:#FFE4E1
+    style B fill:#87CEEB
+    style H fill:#87CEEB
+    style O fill:#90EE90
