@@ -14,7 +14,7 @@ from odyssey_algo.trading.models import ProductType, TradingMode
 load_dotenv()
 
 VALID_EXPIRY_PRESETS = frozenset({"current_week", "current_month"})
-VALID_STRATEGIES = frozenset({"nifty_momentum"})
+VALID_STRATEGIES = frozenset({"nifty_momentum", "atm_options"})
 
 
 @dataclass(frozen=True)
