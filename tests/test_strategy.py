@@ -27,7 +27,7 @@ class _FakeClient:
         return {}
 
 
-def _settings() -> TradingSettings:
+def _settings(strategy_name: str = "nifty_momentum") -> TradingSettings:
     return TradingSettings(
         access_token="test-token",
         trading_mode=TradingMode.PAPER,
@@ -35,7 +35,7 @@ def _settings() -> TradingSettings:
         underlying="NIFTY",
         nifty_index_key="NSE_INDEX|Nifty 50",
         option_expiry="current_week",
-        strategy_name="nifty_momentum",
+        strategy_name=strategy_name,
         product=ProductType.INTRADAY,
         poll_interval_sec=30,
         max_open_positions=2,
@@ -100,8 +100,7 @@ def test_strategy_emits_pe_signal_on_downward_move() -> None:
 
 def test_atm_strategy_initializes_on_first_tick() -> None:
     """ATM strategy should initialize intraday levels on first tick."""
-    settings = _settings()
-    settings.strategy_name = "atm_options"
+    settings = _settings("atm_options")
     strategy = ATMOptionStrategy(settings)
     resolver = NiftyOptionsResolver(_FakeClient())  # type: ignore[arg-type]
     context = StrategyContext(settings=settings, resolver=resolver, spot_price=24000.0)
@@ -117,8 +116,7 @@ def test_atm_strategy_initializes_on_first_tick() -> None:
 
 def test_atm_strategy_tracks_intraday_high() -> None:
     """ATM strategy should track intraday high."""
-    settings = _settings()
-    settings.strategy_name = "atm_options"
+    settings = _settings("atm_options")
     strategy = ATMOptionStrategy(settings)
     resolver = NiftyOptionsResolver(_FakeClient())  # type: ignore[arg-type]
     context = StrategyContext(
@@ -141,8 +139,7 @@ def test_atm_strategy_tracks_intraday_high() -> None:
 
 def test_atm_strategy_emits_ce_on_breakout_above_high() -> None:
     """ATM strategy should emit CE signal on breakout above intraday high."""
-    settings = _settings()
-    settings.strategy_name = "atm_options"
+    settings = _settings("atm_options")
     strategy = ATMOptionStrategy(settings)
     resolver = NiftyOptionsResolver(_FakeClient())  # type: ignore[arg-type]
     context = StrategyContext(
@@ -168,8 +165,7 @@ def test_atm_strategy_emits_ce_on_breakout_above_high() -> None:
 
 def test_atm_strategy_emits_pe_on_breakout_below_low() -> None:
     """ATM strategy should emit PE signal on breakout below intraday low."""
-    settings = _settings()
-    settings.strategy_name = "atm_options"
+    settings = _settings("atm_options")
     strategy = ATMOptionStrategy(settings)
     resolver = NiftyOptionsResolver(_FakeClient())  # type: ignore[arg-type]
     context = StrategyContext(
@@ -195,8 +191,7 @@ def test_atm_strategy_emits_pe_on_breakout_below_low() -> None:
 
 def test_atm_strategy_deduplicates_ce_signals() -> None:
     """ATM strategy should not re-emit CE signal if already triggered at same high."""
-    settings = _settings()
-    settings.strategy_name = "atm_options"
+    settings = _settings("atm_options")
     strategy = ATMOptionStrategy(settings)
     resolver = NiftyOptionsResolver(_FakeClient())  # type: ignore[arg-type]
     context = StrategyContext(
@@ -218,8 +213,7 @@ def test_atm_strategy_deduplicates_ce_signals() -> None:
 
 def test_atm_strategy_signal_metadata() -> None:
     """ATM strategy signals should include correct metadata."""
-    settings = _settings()
-    settings.strategy_name = "atm_options"
+    settings = _settings("atm_options")
     strategy = ATMOptionStrategy(settings)
     resolver = NiftyOptionsResolver(_FakeClient())  # type: ignore[arg-type]
     context = StrategyContext(

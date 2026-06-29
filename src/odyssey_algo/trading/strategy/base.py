@@ -84,20 +84,14 @@ class ATMOptionStrategy(BaseStrategy):
         last_ce_signal = context.metadata.get("last_ce_signal")
         last_pe_signal = context.metadata.get("last_pe_signal")
 
-        # Update extremes
-        if spot > intraday_high:
-            intraday_high = spot
-            context.metadata["intraday_high"] = intraday_high
-        if spot < intraday_low:
-            intraday_low = spot
-            context.metadata["intraday_low"] = intraday_low
-
         signals: list[Signal] = []
 
         # CE signal on breakout above high (if not already triggered)
         if spot > intraday_high and last_ce_signal != intraday_high:
             contract = context.resolver.resolve_for_signal(OptionType.CE)
             if contract is not None:
+                intraday_high = spot
+                context.metadata["intraday_high"] = intraday_high
                 signals.append(
                     Signal(
                         action=SignalAction.ENTER_LONG,
@@ -114,11 +108,16 @@ class ATMOptionStrategy(BaseStrategy):
                     )
                 )
                 context.metadata["last_ce_signal"] = intraday_high
+        elif spot > intraday_high:
+            intraday_high = spot
+            context.metadata["intraday_high"] = intraday_high
 
         # PE signal on breakout below low (if not already triggered)
         if spot < intraday_low and last_pe_signal != intraday_low:
             contract = context.resolver.resolve_for_signal(OptionType.PE)
             if contract is not None:
+                intraday_low = spot
+                context.metadata["intraday_low"] = intraday_low
                 signals.append(
                     Signal(
                         action=SignalAction.ENTER_LONG,
@@ -135,6 +134,9 @@ class ATMOptionStrategy(BaseStrategy):
                     )
                 )
                 context.metadata["last_pe_signal"] = intraday_low
+        elif spot < intraday_low:
+            intraday_low = spot
+            context.metadata["intraday_low"] = intraday_low
 
         return signals
 
